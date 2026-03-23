@@ -1,0 +1,38 @@
+{
+    "name": "web-vision/unity-schema",
+    "description": "schema.org integration for TYPO3 Unity",
+    "type": "typo3-cms-extension",
+    "homepage": "https://www.web-vision.de/en/magento/magento-content-management-for-seo.html",
+    "require": {
+        "php": "^8.1 || ^8.2 || ^8.3 || ^8.4",
+        "brotkrueml/schema": "^3.15",
+        "typo3/cms-core": "^12.4",
+        "web-vision/wv_t3unity": "dev-update-v12"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.94.2",
+        "helmich/typo3-typoscript-lint": "^3.3",
+        "typo3/testing-framework": "^8.3.1",
+        "phpstan/phpstan": "^2.1"
+    },
+    "license": "GPL-v2-or-later",
+    "autoload": {
+        "psr-4": {
+            "WebVision\\UnitySchema\\": "Classes"
+        }
+    },
+    "authors": [
+        {
+            "name": "web-vision GmbH",
+            "email": "hello@web-vision.de"
+        }
+    ],
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "unity_schema"
+        }
+    }
+}
