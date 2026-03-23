@@ -1,0 +1,39 @@
+User {
+  WebPage = SCHEMA
+  WebPage {
+    type = WebPage
+    properties {
+      name.field = seo_title // title
+      description.field = description
+    }
+  }
+}
+
+# This is an example and should be extended/replaced fitting your projects needs
+UnityHead {
+  # the content of 10.schema is rendered via ContentObjectRenderer as COA
+  10.schema = COA
+  10.schema {
+    # is following the schema definition from https://docs.typo3.org/p/brotkrueml/schema/3.11/en-us/TypoScript/Index.html
+    10 = SCHEMA
+    10 {
+      type = WebPage
+      id {
+        typolink {
+          parameter = t3://page?uid={site : rootPageId}
+          parameter.insertData = 1
+          forceAbsoluteUrl = 1
+          returnLast = url
+        }
+      }
+      properties {
+        name.field = seo_title // title
+        description.field = description
+        datePublished.field = crdate
+        datePublished.date = c
+        dateModified.field = tstamp
+        dateModified.date = c
+      }
+    }
+  }
+}
