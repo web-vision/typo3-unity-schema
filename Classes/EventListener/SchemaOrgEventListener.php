@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace WebVision\UnitySchema\EventListener;
 
 use Brotkrueml\Schema\Manager\SchemaManager;
-use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Routing\PageArguments;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
