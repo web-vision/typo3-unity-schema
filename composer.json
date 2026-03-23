@@ -45,7 +45,8 @@
     },
     "extra": {
         "typo3/cms": {
-            "extension-key": "unity_schema"
+            "extension-key": "unity_schema",
+            "web-dir": ".Build/Web"
         }
     },
     "minimum-stability": "dev",
