@@ -1,0 +1,6 @@
+"pages"
+,"uid","pid","is_siteroot","doktype","title","slug","crdate","tstamp"
+,1,0,1,1,"ACME Test","/",1769191328,1774288944
+"sys_template"
+,"uid","pid","root","clear","include_static_file","config"
+,1,1,1,3,"EXT:wv_t3unity/Configuration/TypoScript/,EXT:unity_schema/Configuration/TypoScript/",""

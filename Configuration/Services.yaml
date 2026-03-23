@@ -1,0 +1,14 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  WebVision\UnitySchema\:
+    resource: '../Classes/*'
+
+  WebVision\UnitySchema\EventListener\SchemaOrgEventListener:
+    tags:
+      - name: event.listener
+        identifier: 'unity-schema/add-json-ld'
+        event: WebVision\WvT3unity\Event\ManipulateHeadDataEvent
