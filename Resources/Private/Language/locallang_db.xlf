@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" datatype="plaintext" original="EXT:unity_schema/Resources/Private/Language/locallang_db.xlf" date="2026-07-09T00:00:00Z" product-name="unity_schema">
+		<body>
+			<trans-unit id="tt_content.palette.tx_schema_structureddata">
+				<source><![CDATA[Structured data (schema.org)]]></source>
+			</trans-unit>
+			<trans-unit id="tt_content.tx_schema_type">
+				<source><![CDATA[Schema.org type]]></source>
+			</trans-unit>
+			<trans-unit id="tt_content.tx_schema_type.description">
+				<source><![CDATA[Turns this content element into a schema.org type. Leave empty to not add any structured data for this content element.]]></source>
+			</trans-unit>
+			<trans-unit id="tt_content.tx_schema_is_main_entity">
+				<source><![CDATA[Is main entity of page]]></source>
+			</trans-unit>
+			<trans-unit id="tt_content.tx_schema_is_main_entity.description">
+				<source><![CDATA[Adds the type as mainEntity of the page instead of a standalone node. Several content elements on the same page can each be a main entity, for example several Question elements on an FAQPage.]]></source>
+			</trans-unit>
+			<trans-unit id="tt_content.tx_schema_properties">
+				<source><![CDATA[Schema.org properties (JSON)]]></source>
+			</trans-unit>
+			<trans-unit id="tt_content.tx_schema_properties.description">
+				<source><![CDATA[Property name/value pairs for the selected type, as a flat JSON object with plain strings/numbers/booleans only, for example {"name": "Some product", "sku": "ABC-123"}. Not suited for properties whose value must be another type (for example offers, acceptedAnswer, aggregateRating, or a carousel's items) - implement a StructuredDataProviderInterface for those.]]></source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
