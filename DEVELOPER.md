@@ -109,9 +109,7 @@ final class CarouselProvider implements StructuredDataProviderInterface
 ```
 
 Register it like any other autowired service - it is picked up automatically because it implements
-`StructuredDataProviderInterface` (see the `_instanceof` block in this extension's
-`Configuration/Services.yaml`, which applies container-wide, not just to this extension's own
-services):
+`StructuredDataProviderInterface`:
 
 ```yaml
 services:
@@ -126,6 +124,10 @@ services:
 
 Nothing else is required - `StructuredDataFromContentEventListener` will call `supports()` for every
 content element on the page and `provide()` for the matching ones.
+
+This works across package boundaries - a provider in a consuming extension gets tagged for
+`unity_schema.structured_data_provider` automatically, without that extension having to declare the
+tag itself.
 
 ## Extension configuration
 

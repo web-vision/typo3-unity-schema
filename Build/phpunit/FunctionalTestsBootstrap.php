@@ -24,6 +24,14 @@
  */
 (static function () {
     /**
+     * Adopt fixture extensions registered via composer.json's "extra.sbuerk/fixture-packages.paths"
+     * so they can be referenced by composer package name in FunctionalTestCase::$testExtensionsToLoad.
+     */
+    if (class_exists(\SBUERK\AvailableFixturePackages::class)) {
+        (new \SBUERK\AvailableFixturePackages())->adoptFixtureExtensions();
+    }
+
+    /**
      * @todo Fix testing-framework extension package information loading within the framework and remove workaround
      *       here after upgrade to testing-framework release containing the fix.
      */

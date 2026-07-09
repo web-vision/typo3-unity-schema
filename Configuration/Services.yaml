@@ -4,11 +4,6 @@ services:
     autoconfigure: true
     public: false
 
-  _instanceof:
-    WebVision\UnitySchema\StructuredData\StructuredDataProviderInterface:
-      tags:
-        - name: unity_schema.structured_data_provider
-
   WebVision\UnitySchema\:
     resource: '../Classes/*'
 
