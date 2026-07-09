@@ -28,10 +28,17 @@ final class PageContentRepository
     public function findByPageId(int $pageId, ServerRequestInterface $request): array
     {
         $cObj = $this->getContentObjectRenderer($request);
-        $topLevelRows = $cObj->getRecords('tt_content', [
+        $constraints = [
             'pidInList' => (string)$pageId,
             'orderBy' => 'sorting',
-        ]);
+        ];
+
+        $parentField = $this->getContainerParentField();
+        if ($parentField !== '') {
+            $constraints['where'] = $parentField . ' = 0';
+        }
+
+        $topLevelRows = $cObj->getRecords('tt_content', $constraints);
 
         return $this->withContainerChildren($topLevelRows, $cObj);
     }
@@ -55,7 +62,7 @@ final class PageContentRepository
      */
     private function withContainerChildren(array $rows, ContentObjectRenderer $cObj): array
     {
-        $parentField = (string)($this->extensionConfiguration->get('unity_schema', 'containerParentField') ?? '');
+        $parentField = $this->getContainerParentField();
         if ($parentField === '') {
             return $rows;
         }
@@ -71,5 +78,10 @@ final class PageContentRepository
         }
 
         return $resolved;
+    }
+
+    private function getContainerParentField(): string
+    {
+        return (string)($this->extensionConfiguration->get('unity_schema', 'containerParentField') ?? '');
     }
 }

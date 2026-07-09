@@ -1,0 +1,19 @@
+{
+    "name": "acme/site-package-provider",
+    "description": "Fixture extension reproducing a consuming site package's structured data provider",
+    "type": "typo3-cms-extension",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": "^8.1 || ^8.2 || ^8.3 || ^8.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Acme\\SitePackageProvider\\": "Classes/"
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "site_package_provider"
+        }
+    }
+}
