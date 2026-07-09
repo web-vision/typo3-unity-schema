@@ -1,0 +1,2 @@
+# cat=Basic; type=string; label=Field name on tt_content holding the uid of a parent container element (e.g. tx_container_parent from b13/container). Leave empty to disable recursing into container children when collecting structured data.
+containerParentField =
