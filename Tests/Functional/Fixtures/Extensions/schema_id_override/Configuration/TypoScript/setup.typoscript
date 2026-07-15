@@ -1,0 +1,7 @@
+# Reproduces abeco's override: reshape the WebPage @id typolink so its resolved URL is rewritten to
+# the decoupled storefront domain. forceAbsoluteUrl is disabled so the userFunc receives the bare
+# page path and can prepend the storefront base itself.
+UnityHead.10.schema.10.id.typolink {
+    forceAbsoluteUrl = 0
+    userFunc = Acme\SchemaIdOverride\UserFunc\ExternalUrlEnricher->toStorefrontUrl
+}

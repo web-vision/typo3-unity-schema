@@ -12,6 +12,8 @@ services:
       $providers: !tagged_iterator unity_schema.structured_data_provider
 
   WebVision\UnitySchema\EventListener\SchemaOrgEventListener:
+    arguments:
+      $configuration: '@schema.configuration'
     tags:
       - name: event.listener
         identifier: 'unity-schema/add-json-ld'

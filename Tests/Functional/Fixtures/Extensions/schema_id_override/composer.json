@@ -1,0 +1,19 @@
+{
+    "name": "acme/schema-id-override",
+    "description": "Fixture extension rewriting the WebPage @id to a decoupled storefront URL via a typolink userFunc",
+    "type": "typo3-cms-extension",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": "^8.1 || ^8.2 || ^8.3 || ^8.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Acme\\SchemaIdOverride\\": "Classes/"
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "schema_id_override"
+        }
+    }
+}
