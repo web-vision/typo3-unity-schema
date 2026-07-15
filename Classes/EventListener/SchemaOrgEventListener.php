@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace WebVision\UnitySchema\EventListener;
 
+use Brotkrueml\Schema\Configuration\Configuration;
 use Brotkrueml\Schema\Event\RenderAdditionalTypesEvent;
 use Brotkrueml\Schema\Manager\SchemaManager;
 use Brotkrueml\Schema\Type\TypeFactory;
@@ -26,6 +27,7 @@ final class SchemaOrgEventListener
         private readonly SchemaManager $schemaManager,
         private readonly TypeFactory $typeFactory,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly Configuration $configuration,
     ) {
     }
 
@@ -56,27 +58,44 @@ final class SchemaOrgEventListener
             $cObj->render($coaContentObject, $event->configuration['schema.']);
         }
 
-        $webPageType = $cObj->data['tx_schema_webpagetype'] ?? '';
-        if ($webPageType === '') {
-            $webPageType = 'WebPage';
+        // Honour EXT:schema's global switch for automatically emitting the WebPage type.
+        if ($this->configuration->automaticWebPageSchemaGeneration) {
+            $webPageType = $cObj->data['tx_schema_webpagetype'] ?? '';
+            if ($webPageType === '') {
+                $webPageType = 'WebPage';
+            }
+            $generatedType = $this->typeFactory->create($webPageType);
+            $generatedType->setId($this->buildWebPageId($cObj, $event));
+            $generatedType->setProperties([
+                'dateModified' => (new \DateTimeImmutable())->setTimestamp((int)$cObj->data['tstamp'])->format(\DateTimeImmutable::ATOM),
+                'datePublished' => (new \DateTimeImmutable())->setTimestamp((int)$cObj->data['crdate'])->format(\DateTimeImmutable::ATOM),
+                'name' => $cObj->data['title'] ?? '',
+            ]);
+            $this->schemaManager->addType($generatedType);
         }
-        $generatedType = $this->typeFactory->create($webPageType);
-        $url = $cObj->typoLink_URL([
-            'parameter' => 't3://page?uid=' . $cObj->data['uid'],
-            'forceAbsoluteUrl' => true,
-        ]);
-        $generatedType->setId($url);
-        $generatedType->setProperties([
-            'dateModified' => (new \DateTimeImmutable())->setTimestamp((int)$cObj->data['tstamp'])->format(\DateTimeImmutable::ATOM),
-            'datePublished' => (new \DateTimeImmutable())->setTimestamp((int)$cObj->data['crdate'])->format(\DateTimeImmutable::ATOM),
-            'name' => $cObj->data['title'] ?? '',
-        ]);
-        $this->schemaManager->addType($generatedType);
         $this->dispatchRenderAdditionalTypesEvent($event);
         // as the SchemaManager and no other caller inside EXT:schema have a plain return of the JSON, we need to take
         // the output here and strip the pre-rendered <script> tags. Otherwise, the returned value is not JSON-decodable
         $json = strip_tags($this->schemaManager->renderJsonLd());
         $event->headData['jsonLd'] = $json;
+    }
+
+    /**
+     * Resolve the WebPage @id.
+     *
+     * The link is built through the TypoScript-configured typolink of the WebPage schema
+     * (UnityHead.10.schema.10.id.typolink), only pinning the current page as the link target so the
+     * @id stays per-page. Routing it through that configuration keeps the URL overridable from the
+     * outside: a site package can attach a typolink `userFunc` there to rewrite the CMS URL into a
+     * decoupled storefront (e.g. Magento) URL, without this extension knowing about that target.
+     */
+    private function buildWebPageId(ContentObjectRenderer $cObj, ManipulateHeadDataEvent $event): string
+    {
+        $typolinkConfiguration = $event->configuration['schema.']['10.']['id.']['typolink.'] ?? [];
+        $typolinkConfiguration['parameter'] = 't3://page?uid=' . (int)($cObj->data['uid'] ?? 0);
+        $typolinkConfiguration['forceAbsoluteUrl'] ??= '1';
+
+        return $cObj->typoLink_URL($typolinkConfiguration);
     }
 
     /**

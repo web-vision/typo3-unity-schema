@@ -55,6 +55,9 @@
             "paths": {
                 "Tests/Functional/Fixtures/Extensions/site_package_provider": [
                     "autoload"
+                ],
+                "Tests/Functional/Fixtures/Extensions/schema_id_override": [
+                    "autoload"
                 ]
             }
         }
