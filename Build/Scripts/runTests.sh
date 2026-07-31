@@ -397,6 +397,9 @@ COMPOSER_ROOT_VERSION="5.x.x-dev"
 CONTAINER_INTERACTIVE="-it --init"
 HOST_UID=$(id -u)
 HOST_GID=$(id -g)
+# Additional container parameters, provided by the environment. Empty unless the caller
+# exports it, which is how the portfolio harnesses inject CI specific flags.
+CI_PARAMS="${CI_PARAMS:-}"
 USERSET=""
 if [ $(uname) != "Darwin" ]; then
     USERSET="--user $HOST_UID"
@@ -452,8 +455,8 @@ ${CONTAINER_BIN} network create ${NETWORK} >/dev/null
 
 if [ "${CONTAINER_BIN}" == "docker" ]; then
     # docker needs the add-host for xdebug remote debugging. podman has host.container.internal built in
-    CONTAINER_COMMON_PARAMS="${CONTAINER_INTERACTIVE} --rm --network ${NETWORK} --add-host ${CONTAINER_HOST}:host-gateway ${USERSET} -v ${ROOT_DIR}:${ROOT_DIR} ${DEEPL_BASE_MOUNT} -w ${ROOT_DIR}"
-    CONTAINER_SIMPLE_PARAMS="${CONTAINER_INTERACTIVE} --rm --network ${NETWORK} --add-host ${CONTAINER_HOST}:host-gateway ${USERSET} -v ${ROOT_DIR}:${ROOT_DIR} ${DEEPL_BASE_MOUNT} -w ${ROOT_DIR}"
+    CONTAINER_COMMON_PARAMS="${CONTAINER_INTERACTIVE} --rm --network ${NETWORK} --add-host ${CONTAINER_HOST}:host-gateway ${USERSET} -v ${ROOT_DIR}:${ROOT_DIR} -w ${ROOT_DIR}"
+    CONTAINER_SIMPLE_PARAMS="${CONTAINER_INTERACTIVE} --rm --network ${NETWORK} --add-host ${CONTAINER_HOST}:host-gateway ${USERSET} -v ${ROOT_DIR}:${ROOT_DIR} -w ${ROOT_DIR}"
     DOCUMENTATION_COMMON_PARAMS="${CONTAINER_INTERACTIVE} --rm ${USERSET} -v ${ROOT_DIR}:/project"
     # docker creates a tmpfs owned by "root:root", inheriting the mode of its host
     # mountpoint, while "${USERSET}" above passes a uid but no group and therefore runs
@@ -474,8 +477,8 @@ else
     # Rootless podman maps the container root to the host user, so the tmpfs is writable
     # without an explicit owner. "mode=1777" is kept for the rootful case.
     TMPFS_MOUNT_OPTIONS="rw,noexec,nosuid,mode=1777"
-    CONTAINER_COMMON_PARAMS="${CONTAINER_INTERACTIVE} ${CI_PARAMS} --rm --network ${NETWORK} -v ${ROOT_DIR}:${ROOT_DIR} ${DEEPL_BASE_MOUNT}  -w ${ROOT_DIR}"
-    CONTAINER_SIMPLE_PARAMS="${CONTAINER_INTERACTIVE} ${CI_PARAMS} --rm -v ${ROOT_DIR}:${ROOT_DIR} ${DEEPL_BASE_MOUNT}  -w ${ROOT_DIR}"
+    CONTAINER_COMMON_PARAMS="${CONTAINER_INTERACTIVE} ${CI_PARAMS} --rm --network ${NETWORK} -v ${ROOT_DIR}:${ROOT_DIR} -w ${ROOT_DIR}"
+    CONTAINER_SIMPLE_PARAMS="${CONTAINER_INTERACTIVE} ${CI_PARAMS} --rm -v ${ROOT_DIR}:${ROOT_DIR} -w ${ROOT_DIR}"
     DOCUMENTATION_COMMON_PARAMS="${CONTAINER_INTERACTIVE} ${CI_PARAMS} --rm -v ${ROOT_DIR}:${ROOT_DIR} -v ${ROOT_DIR}:/project"
 fi
 
