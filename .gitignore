@@ -52,6 +52,7 @@ composer.phar
 #######################
 /.Build
 /composer.lock
+/composer.json.orig
 /var
 
 /.php-cs-fixer.cache
