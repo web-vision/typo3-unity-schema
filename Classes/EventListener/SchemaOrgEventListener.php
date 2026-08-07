@@ -16,9 +16,9 @@ use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Routing\PageArguments;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\RootlineUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use WebVision\WvT3unity\Event\ManipulateHeadDataEvent;
 use WebVision\WvT3unity\UserFunc\ContentJson;
 
@@ -75,7 +75,7 @@ final class SchemaOrgEventListener
                 $webPageType = 'WebPage';
             }
             $generatedType = $this->typeFactory->create($webPageType);
-            $generatedType->setId($this->buildWebPageId($cObj, $event, (int)($cObj->data['uid'] ?? 0)));
+            $generatedType->setId($this->buildWebPageId($cObj, $event));
             $generatedType->setProperties([
                 'dateModified' => (new \DateTimeImmutable())->setTimestamp((int)$cObj->data['tstamp'])->format(\DateTimeImmutable::ATOM),
                 'datePublished' => (new \DateTimeImmutable())->setTimestamp((int)$cObj->data['crdate'])->format(\DateTimeImmutable::ATOM),
@@ -84,9 +84,7 @@ final class SchemaOrgEventListener
             $this->schemaManager->addType($generatedType);
         }
 
-        /** @var TypoScriptFrontendController $frontendController */
-        $frontendController = $event->request->getAttribute('frontend.controller');
-        $rootLine = $frontendController->config['rootLine'] ?? [];
+        $rootLine = GeneralUtility::makeInstance(RootlineUtility::class, $sitePageArgument->getPageId())->get();
 
         if ($this->configuration->automaticBreadcrumbSchemaGeneration && !$this->isBreadcrumbExcludedByBackendLayout($rootLine)) {
             $this->schemaManager->addType(
