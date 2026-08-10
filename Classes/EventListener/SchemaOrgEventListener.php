@@ -225,12 +225,24 @@ final class SchemaOrgEventListener
         /** @var PageRepository $pageRepository */
         $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
 
-        foreach (\array_reverse($rootLine) as $index => $page) {
+        $currentPage = \array_shift($rootLine);
+
+        $pageRecord = $pageRepository->getPage((int)$currentPage['uid']);
+
+        $backendLayout = $pageRecord['backend_layout'] ?? '';
+
+        if ($backendLayout !== '') {
+            return \in_array(
+                (string)$backendLayout,
+                $excludedBackendLayouts,
+                true
+            );
+        }
+
+        foreach ($rootLine as $page) {
             $pageRecord = $pageRepository->getPage((int)$page['uid']);
 
-            $backendLayout = $index === 0
-                ? ($pageRecord['backend_layout'] ?? '')
-                : ($pageRecord['backend_layout_next_level'] ?? '');
+            $backendLayout = $pageRecord['backend_layout_next_level'] ?? '';
 
             if ($backendLayout !== '') {
                 return \in_array(
