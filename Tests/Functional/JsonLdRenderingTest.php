@@ -51,4 +51,24 @@ final class JsonLdRenderingTest extends FunctionalTestCase
             $decodedBody['jsonLd']
         );
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function webPageTypeIsAddedCorrect(): void
+    {
+        $internalRequest = new InternalRequest('https://acme.com/about-us?type=3210');
+        $response = $this->executeFrontendSubRequest($internalRequest);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $response->getBody()->rewind();
+        $body = $response->getBody()->getContents();
+        $this->assertJson($body);
+        $decodedBody = json_decode($body, true);
+        $this->assertIsArray($decodedBody);
+        $this->assertArrayHasKey('jsonLd', $decodedBody);
+        $this->assertJson($decodedBody['jsonLd']);
+        $this->assertJsonStringEqualsJsonString(
+            '{"@context":"https://schema.org/","@type":"AboutPage","@id":"https://acme.com/about-us","dateModified":"2026-03-23T18:02:24+00:00","datePublished":"2026-01-23T18:02:08+00:00","name":"About us"}',
+            $decodedBody['jsonLd']
+        );
+    }
 }

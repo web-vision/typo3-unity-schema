@@ -7,8 +7,20 @@ services:
   WebVision\UnitySchema\:
     resource: '../Classes/*'
 
+  WebVision\UnitySchema\StructuredData\StructuredDataProviderRegistry:
+    arguments:
+      $providers: !tagged_iterator unity_schema.structured_data_provider
+
   WebVision\UnitySchema\EventListener\SchemaOrgEventListener:
+    arguments:
+      $configuration: '@schema.configuration'
     tags:
       - name: event.listener
         identifier: 'unity-schema/add-json-ld'
         event: WebVision\WvT3unity\Event\ManipulateHeadDataEvent
+
+  WebVision\UnitySchema\EventListener\StructuredDataFromContentEventListener:
+    tags:
+      - name: event.listener
+        identifier: 'unity-schema/add-structured-data-from-content'
+        event: Brotkrueml\Schema\Event\RenderAdditionalTypesEvent

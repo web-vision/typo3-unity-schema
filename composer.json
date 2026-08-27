@@ -10,10 +10,12 @@
         "web-vision/wv_t3unity": "dev-update-12-lts"
     },
     "require-dev": {
+        "b13/container": "^3.0",
         "friendsofphp/php-cs-fixer": "^3.94.2",
         "helmich/typo3-typoscript-lint": "^3.3",
         "phpstan/phpstan": "^1.10.9",
         "saschaegerer/phpstan-typo3": "^1.10.2",
+        "sbuerk/fixture-packages": "^1.1",
         "sbuerk/typo3-site-based-test-trait": "^1",
         "typo3/testing-framework": "^8.3.1"
     },
@@ -38,7 +40,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "typo3/class-alias-loader": true,
-            "typo3/cms-composer-installers": true
+            "typo3/cms-composer-installers": true,
+            "sbuerk/fixture-packages": true
         },
         "vendor-dir": ".Build/vendor",
         "bin-dir": ".Build/bin"
@@ -47,6 +50,16 @@
         "typo3/cms": {
             "extension-key": "unity_schema",
             "web-dir": ".Build/Web"
+        },
+        "sbuerk/fixture-packages": {
+            "paths": {
+                "Tests/Functional/Fixtures/Extensions/site_package_provider": [
+                    "autoload"
+                ],
+                "Tests/Functional/Fixtures/Extensions/schema_id_override": [
+                    "autoload"
+                ]
+            }
         }
     },
     "minimum-stability": "dev",
