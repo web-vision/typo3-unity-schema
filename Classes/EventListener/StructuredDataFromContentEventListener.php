@@ -8,6 +8,7 @@ use Brotkrueml\Schema\Core\Model\TypeInterface;
 use Brotkrueml\Schema\Event\RenderAdditionalTypesEvent;
 use TYPO3\CMS\Core\Routing\PageArguments;
 use WebVision\UnitySchema\Domain\Repository\PageContentRepository;
+use WebVision\UnitySchema\StructuredData\Provider\GenericPropertiesProvider;
 use WebVision\UnitySchema\StructuredData\StructuredDataProviderRegistry;
 
 /**
@@ -55,20 +56,38 @@ final class StructuredDataFromContentEventListener
     }
 
     /**
+     * A dedicated provider replaces the node the generic provider built for the same type, but
+     * every node yielded by dedicated providers is kept - even several of the same type, e.g. one
+     * ImageObject per image of a content element.
+     *
      * @param array<string, mixed> $contentRecord
      * @param RenderAdditionalTypesEvent $event
      * @return array<int, TypeInterface>
      */
     private function getTypesForContentRecord(array $contentRecord, RenderAdditionalTypesEvent $event): array
     {
-        $types = [];
+        $genericTypes = [];
+        $dedicatedTypes = [];
 
         foreach ($this->providerRegistry->findFor($contentRecord) as $provider) {
             foreach ($provider->provide($contentRecord, $event->getRequest()) as $type) {
-                $types[get_class($type)] = $type;
+                if ($provider instanceof GenericPropertiesProvider) {
+                    $genericTypes[] = $type;
+                    continue;
+                }
+                $dedicatedTypes[] = $type;
             }
         }
 
-        return array_values($types);
+        $dedicatedClasses = array_flip(array_map(
+            static fn (TypeInterface $type): string => $type::class,
+            $dedicatedTypes,
+        ));
+        $genericTypes = array_filter(
+            $genericTypes,
+            static fn (TypeInterface $type): bool => !isset($dedicatedClasses[$type::class]),
+        );
+
+        return [...array_values($genericTypes), ...$dedicatedTypes];
     }
 }
