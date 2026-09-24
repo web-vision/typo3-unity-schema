@@ -6,8 +6,12 @@
     "require": {
         "php": "^8.1 || ^8.2 || ^8.3 || ^8.4",
         "brotkrueml/schema": "^3.15",
+        "typo3/cms-backend": "^12.4",
         "typo3/cms-core": "^12.4",
-        "web-vision/wv_t3unity": "dev-update-12-lts"
+        "typo3/cms-filelist": "^12.4",
+        "typo3/cms-frontend": "^12.4",
+        "typo3/cms-tstemplate": "^12.4",
+        "web-vision/wv_t3unity": "^3.0"
     },
     "require-dev": {
         "b13/container": "^3.0",
@@ -17,7 +21,22 @@
         "saschaegerer/phpstan-typo3": "^1.10.2",
         "sbuerk/fixture-packages": "^1.1",
         "sbuerk/typo3-site-based-test-trait": "^1",
-        "typo3/testing-framework": "^8.3.1"
+        "typo3/cms-dashboard": "^12.4",
+        "typo3/cms-extbase": "^12.4",
+        "typo3/cms-extensionmanager": "^12.4",
+        "typo3/cms-felogin": "^12.4",
+        "typo3/cms-filemetadata": "^12.4",
+        "typo3/cms-fluid": "^12.4",
+        "typo3/cms-fluid-styled-content": "^12.4",
+        "typo3/cms-form": "^12.4",
+        "typo3/cms-indexed-search": "^12.4",
+        "typo3/cms-info": "^12.4",
+        "typo3/cms-install": "^12.4",
+        "typo3/cms-linkvalidator": "^12.4",
+        "typo3/cms-lowlevel": "^12.4",
+        "typo3/cms-seo": "^12.4",
+        "typo3/cms-setup": "^12.4",
+        "typo3/testing-framework": "^8.3.3"
     },
     "license": "GPL-2.0-or-later",
     "autoload": {
@@ -44,7 +63,15 @@
             "sbuerk/fixture-packages": true
         },
         "vendor-dir": ".Build/vendor",
-        "bin-dir": ".Build/bin"
+        "bin-dir": ".Build/bin",
+		"audit": {
+            "block-insecure": false
+        },
+		"policy": {
+			"advisories": {
+				"block": false
+			}
+		}
     },
     "extra": {
         "typo3/cms": {
@@ -60,8 +87,9 @@
                     "autoload"
                 ]
             }
+        },
+        "branch-alias": {
+            "dev-main": "1.x-dev"
         }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    }
 }
