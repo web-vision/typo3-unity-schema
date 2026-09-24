@@ -50,6 +50,9 @@ event - including this extension's own `StructuredDataFromContentEventListener` 
   resolves the current page id, fetches its content elements, asks the registry for matching
   providers per row, and adds the resulting types via `$event->addType()` or
   `$event->addMainEntityOfWebPage()` (depending on the row's `tx_schema_is_main_entity` field).
+  A type built by a dedicated provider replaces the node the generic provider built for the same
+  type of that row, while every node of dedicated providers is kept - including several nodes of
+  the same type, e.g. one `ImageObject` per image.
 
 ## Implementing a custom provider
 
