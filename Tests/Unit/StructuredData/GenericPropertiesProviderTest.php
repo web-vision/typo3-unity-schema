@@ -7,6 +7,7 @@ namespace WebVision\UnitySchema\Tests\Unit\StructuredData;
 use Brotkrueml\Schema\Type\TypeFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Log\NullLogger;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 use WebVision\UnitySchema\StructuredData\Provider\GenericPropertiesProvider;
 
@@ -17,7 +18,7 @@ final class GenericPropertiesProviderTest extends UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->subject = new GenericPropertiesProvider(new TypeFactory());
+        $this->subject = new GenericPropertiesProvider(new TypeFactory(), new NullLogger());
     }
 
     /**

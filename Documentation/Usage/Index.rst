@@ -51,6 +51,11 @@ three fields:
    ``aggregateRating``, or an ``author`` given as a ``Person`` object. Those need
    a developer-provided provider.
 
+Entries the selected type cannot take are skipped and logged as a warning, the
+rest of the page's structured data is still rendered. This applies to properties
+unknown for the type (e.g. a typo like ``keyword`` instead of ``keywords``),
+nested objects, empty values and invalid JSON.
+
 Worked examples
 ===============
 
