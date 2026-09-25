@@ -51,4 +51,21 @@ final class StructuredDataFromContentTest extends FunctionalTestCase
         $this->assertSame('Article', $decodedJsonLd['mainEntity']['@type']);
         $this->assertSame('Hello World', $decodedJsonLd['mainEntity']['headline']);
     }
+
+    #[Test]
+    public function unknownEditorPropertyIsSkippedInsteadOfBreakingTheRequest(): void
+    {
+        $internalRequest = new InternalRequest('https://acme.com/invalid-properties-page?type=3210');
+        $response = $this->executeFrontendSubRequest($internalRequest);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $response->getBody()->rewind();
+        $decodedBody = json_decode($response->getBody()->getContents(), true);
+        $this->assertIsArray($decodedBody);
+        $this->assertArrayHasKey('jsonLd', $decodedBody);
+        $decodedJsonLd = json_decode($decodedBody['jsonLd'], true);
+        $this->assertSame('NewsArticle', $decodedJsonLd['mainEntity']['@type']);
+        $this->assertSame('Kept headline', $decodedJsonLd['mainEntity']['headline']);
+        $this->assertArrayNotHasKey('keyword', $decodedJsonLd['mainEntity']);
+    }
 }

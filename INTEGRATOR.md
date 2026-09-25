@@ -61,6 +61,10 @@ example `offers`, `acceptedAnswer`, `aggregateRating`, or an `author` given as a
 For those, ask a developer to implement a `StructuredDataProviderInterface` (see
 [DEVELOPER.md](DEVELOPER.md)) for that content element type.
 
+Entries the type cannot take are skipped and logged as a warning, the rest of the page's
+structured data is still rendered. This applies to properties unknown for the selected type (e.g.
+a typo like `keyword` instead of `keywords`), nested objects, empty values and invalid JSON.
+
 ### Worked examples
 
 **Article** (e.g. on a `text` content element used as a blog post intro):
