@@ -143,3 +143,20 @@ element), ask a developer to set the `containerParentField` extension configurat
 (`Settings > Extension Configuration > unity_schema`) to the field name holding the parent's uid
 (for `b13/container` this is `tx_container_parent`). Without it, content elements nested inside a
 container are not picked up for structured data.
+
+## Breadcrumbs
+
+With EXT:schema's `automaticBreadcrumbSchemaGeneration` enabled, a `BreadcrumbList` is added to the
+page's `WebPage` node. Its URLs are built through the same `UnityHead.10.schema.10.id.typolink`
+configuration as the `WebPage` `@id`, so they point to the storefront when that is overridden.
+
+Like EXT:schema's own breadcrumb, the trail starts at the root (position 1) and ends with the current
+page. The site root, sysfolders, spacers, the doktypes of EXT:schema's
+`automaticBreadcrumbExcludeAdditionalDoktypes`, hidden and access restricted pages, pages hidden in
+menus, pages not available in the current language and pages which cannot be linked are skipped.
+Pages using (or inheriting via "next level") a backend layout listed in the
+`automaticBreadcrumbExcludeAdditionalBackendLayouts` extension configuration of `unity_schema` get
+no breadcrumb at all - e.g. pages whose storefront renders its own breadcrumb.
+
+Enable EXT:schema's `allowOnlyOneBreadcrumbList` as well. Otherwise EXT:schema adds its own
+`BreadcrumbList` with the CMS URLs next to this one.

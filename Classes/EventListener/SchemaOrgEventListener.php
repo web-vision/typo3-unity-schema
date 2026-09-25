@@ -13,6 +13,8 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\LanguageAspect;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Routing\PageArguments;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -30,6 +32,16 @@ use WebVision\WvT3unity\UserFunc\ContentJson;
  */
 final class SchemaOrgEventListener
 {
+    /**
+     * Doktypes never part of the breadcrumb trail, like in EXT:schema's AddBreadcrumbList
+     * (255 is the recycler of TYPO3 v12).
+     */
+    private const BREADCRUMB_EXCLUDED_DOKTYPES = [
+        255,
+        PageRepository::DOKTYPE_SPACER,
+        PageRepository::DOKTYPE_SYSFOLDER,
+    ];
+
     public function __construct(
         private readonly SchemaManager $schemaManager,
         private readonly TypeFactory $typeFactory,
@@ -87,9 +99,10 @@ final class SchemaOrgEventListener
         $rootLine = GeneralUtility::makeInstance(RootlineUtility::class, $sitePageArgument->getPageId())->get();
 
         if ($this->configuration->automaticBreadcrumbSchemaGeneration && !$this->isBreadcrumbExcludedByBackendLayout($rootLine)) {
-            $this->schemaManager->addType(
-                $this->buildBreadCrumbList($cObj, $event, $rootLine)
-            );
+            $breadcrumbList = $this->buildBreadCrumbList($cObj, $event, $this->getBreadcrumbPages($rootLine));
+            if ($breadcrumbList !== null) {
+                $this->schemaManager->addType($breadcrumbList);
+            }
         }
 
         $this->dispatchRenderAdditionalTypesEvent($event, $rootLine);
@@ -118,6 +131,49 @@ final class SchemaOrgEventListener
     }
 
     /**
+     * Get the pages of the breadcrumb trail, ordered from the root to the current page.
+     *
+     * Like EXT:schema's AddBreadcrumbList, the site root, sysfolders, spacers and additionally
+     * configured doktypes (`automaticBreadcrumbExcludeAdditionalDoktypes`) as well as hidden pages
+     * and pages hidden in menus are skipped. `hidden` is checked explicitly, as it is not filtered
+     * in previews and workspaces. The page records are fetched through the PageRepository, as it
+     * skips access restricted pages - including pages restricted to other user groups - and
+     * overlays the language. Pages not available in the current language are skipped as well.
+     *
+     * @param array<int, mixed> $rootLine Rootline from the current page up to the root
+     * @return list<array<string, mixed>>
+     */
+    private function getBreadcrumbPages(array $rootLine): array
+    {
+        $doktypesToExclude = [
+            ...self::BREADCRUMB_EXCLUDED_DOKTYPES,
+            ...$this->configuration->automaticBreadcrumbExcludeAdditionalDoktypes,
+        ];
+        /** @var PageRepository $pageRepository */
+        $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
+        $languageAspect = GeneralUtility::makeInstance(Context::class)->getAspect('language');
+
+        $pages = [];
+        foreach (\array_reverse($rootLine) as $rootLinePage) {
+            $page = $pageRepository->getPage((int)($rootLinePage['uid'] ?? 0));
+            if ($page === []
+                || (bool)($page['is_siteroot'] ?? false)
+                || (bool)($page['hidden'] ?? false)
+                || (bool)($page['nav_hide'] ?? false)
+                || \in_array((int)($page['doktype'] ?? PageRepository::DOKTYPE_DEFAULT), $doktypesToExclude, true)
+                || ($languageAspect instanceof LanguageAspect
+                    && !$pageRepository->isPageSuitableForLanguage($page, $languageAspect))
+            ) {
+                continue;
+            }
+
+            $pages[] = $page;
+        }
+
+        return $pages;
+    }
+
+    /**
      * Builds a custom BreadcrumbList schema.
      *
      * The breadcrumb structure follows EXT:schema's default implementation.
@@ -125,23 +181,30 @@ final class SchemaOrgEventListener
      * UnityHead.10.schema.10.id.typolink TypoScript configuration, allowing
      * the base URL to be overridden.
      *
-     * @param array<int, mixed> $rootLine
+     * Pages which cannot be linked are skipped, the positions stay contiguous. Returns null, when
+     * no page is left.
+     *
+     * @param list<array<string, mixed>> $pages Pages ordered from the root to the current page
      */
     private function buildBreadCrumbList(
         ContentObjectRenderer $cObj,
         ManipulateHeadDataEvent $event,
-        array $rootLine
-    ): TypeInterface {
+        array $pages
+    ): ?TypeInterface {
         $breadcrumbList = $this->typeFactory->create('BreadcrumbList');
 
-        foreach (\array_values($rootLine) as $index => $page) {
-            $itemType = $this->typeFactory->create('WebPage');
+        $position = 0;
+        foreach ($pages as $page) {
             $link = $this->buildWebPageId($cObj, $event, (int)$page['uid']);
+            if ($link === '') {
+                continue;
+            }
 
+            $itemType = $this->typeFactory->create('WebPage');
             $itemType->setId($link);
 
             $item = $this->typeFactory->create('ListItem')->setProperties([
-                'position' => $index + 1,
+                'position' => ++$position,
                 'name' => \is_string($page['nav_title'] ?? null) && $page['nav_title'] !== ''
                     ? $page['nav_title']
                     : ($page['title'] ?? ''),
@@ -151,7 +214,7 @@ final class SchemaOrgEventListener
             $breadcrumbList->addProperty('itemListElement', $item);
         }
 
-        return $breadcrumbList;
+        return $position > 0 ? $breadcrumbList : null;
     }
 
     /**
@@ -170,7 +233,11 @@ final class SchemaOrgEventListener
      */
     private function dispatchRenderAdditionalTypesEvent(ManipulateHeadDataEvent $event, array $rootLine): void
     {
+        // With the automatic breadcrumb generation enabled, this listener owns the breadcrumb of the
+        // head request (even when its trail is empty), EXT:schema's AddBreadcrumbList must not add
+        // its own one with the CMS URLs.
         $breadcrumbListAlreadyDefined = $this->schemaManager->hasBreadcrumbList()
+            || $this->configuration->automaticBreadcrumbSchemaGeneration
             || $this->isBreadcrumbExcludedByBackendLayout($rootLine);
 
         /** @var RenderAdditionalTypesEvent $additionalTypesEvent */

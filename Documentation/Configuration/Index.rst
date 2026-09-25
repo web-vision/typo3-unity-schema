@@ -153,3 +153,30 @@ The automatic ``WebPage`` node is emitted only when EXT:schema's
 under :guilabel:`Extension Configuration > schema` to stop this extension from
 adding the node - for example when you provide the page node entirely through your
 own :ref:`sitewide TypoScript <configuration-sitewide>`.
+
+.. _configuration-breadcrumb:
+
+Breadcrumbs
+===========
+
+With EXT:schema's ``automaticBreadcrumbSchemaGeneration`` enabled, a
+``BreadcrumbList`` is added to the page's ``WebPage`` node. Its URLs are built
+through the same ``UnityHead.10.schema.10.id.typolink`` configuration as the
+:ref:`WebPage @id <configuration-webpage-id>`, so they point to the storefront
+when that is overridden.
+
+Like EXT:schema's own breadcrumb, the trail starts at the root (position 1) and
+ends with the current page. The site root, sysfolders, spacers, the doktypes of
+EXT:schema's ``automaticBreadcrumbExcludeAdditionalDoktypes``, hidden and access
+restricted pages, pages hidden in menus, pages not available in the current
+language and pages which cannot be linked are skipped.
+
+Pages using (or inheriting via "next level") a backend layout listed in the
+``automaticBreadcrumbExcludeAdditionalBackendLayouts`` extension configuration of
+``unity_schema`` get no breadcrumb at all - for example pages whose storefront
+renders its own breadcrumb.
+
+.. important::
+
+   Enable EXT:schema's ``allowOnlyOneBreadcrumbList`` as well. Otherwise
+   EXT:schema adds its own ``BreadcrumbList`` with the CMS URLs next to this one.
